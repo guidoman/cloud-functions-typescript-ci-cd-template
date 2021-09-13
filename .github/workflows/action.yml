@@ -1,0 +1,32 @@
+on: [push, workflow_dispatch]
+name: Example Workflow
+jobs:
+  buildTestDeploy:
+    name: Build, test, deploy GCP function
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: 14
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    - run: npm install --only=dev
+    - run: npm run-script build
+    - run: npm test
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+    - id: deploy
+      uses: google-github-actions/deploy-cloud-functions@main
+      with:
+        name: helloWorld
+        runtime: nodejs${{ env.NODE_VERSION }}
+        region: ${{ secrets.GCP_REGION }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        source_dir: functions/src
+

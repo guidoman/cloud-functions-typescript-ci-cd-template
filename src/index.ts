@@ -1,3 +1,4 @@
+// https://github.com/flatfisher/cloud-functions-typescript-template/blob/master/src/index.ts
 import { Request, Response } from 'express'
 
 export function helloWorld(_: Request, res: Response) {
